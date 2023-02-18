@@ -5,25 +5,26 @@ Registration server
 
 Environment variables: 
 
-| Variable                | Default value | Description                                |
-|-------------------------|---------------|--------------------------------------------|
-| HESTIA_PORT             | 9000          | The port the application listens on        |
-| HESTIA_DB_HOST          |               | The host of the users database             |
-| HESTIA_DB_PORT          |               | The port of the users database             |
-| HESTIA_PROFILES_HOST    |               | The host of the profiles service           |
-| HESTIA_PROFILES_PORT    |               | The port of the profiles service           |
+| Variable                | Default value | Description                                  |
+|-------------------------|---------------|----------------------------------------------|
+| HESTIA_PORT             | 9000          | The port the application listens on          |
+| HESTIA_DB               |               | The connection string of the users database  |
 
 ## API (TODO)
 
 ### SignUp
 Request:
 
-    grpcurl -plaintext -d '{\"username\": \"Marem\", \"email\": \"marem@tortugasoftworks\", \"password\": \"1234\"}' localhost:9000 proto.Registration/SignUp
+    proto.Registration/SignUp
+    {
+        "email": "marem@tortugasoftworks.com",
+        "password": "123456"
+    }
 
 Response:
 
     {
-    "userTag": "Marem#00000"
+        "userId": "11314103131"
     }
 
 ## Build

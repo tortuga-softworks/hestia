@@ -1,0 +1,19 @@
+syntax="proto3";
+
+package proto;
+
+option go_package = "github.com/tortuga-softworks/hestia/proto";
+
+service Registration {
+    rpc SignUp (SignUpRequest) returns (SignUpResponse);
+}
+
+message SignUpRequest {
+    string email = 2;
+    string password = 3;
+}
+
+message SignUpResponse {
+    string user_id = 1;
+}
+

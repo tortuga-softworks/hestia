@@ -38,16 +38,15 @@ func (rs *RegistrationService) SignUp(ctx context.Context, email, password strin
 
 	switch err.(type) {
 	case *account.AccountNotFoundError:
-		pwd, salt, err := hashPassword(password)
+		passwordHash, err := hashPassword(password)
 
 		if err != nil {
 			return "", errors.New("could not secure password")
 		}
 
 		account := account.Account{
-			Email:    email,
-			Password: pwd,
-			Salt:     salt,
+			Email:        email,
+			PasswordHash: passwordHash,
 		}
 
 		createdAccount, err := rs.accountStore.Create(ctx, &account)
@@ -68,17 +67,14 @@ func verifyEmailFormat(email string) bool {
 }
 
 func verifyPasswordFormat(password string) bool {
-	return len(password) >= 6
+	return len(password) >= 6 && len(password) <= 24
 }
 
-func hashPassword(password string) ([]byte, []byte, error) {
-	salt, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, nil, err
-	}
+func hashPassword(password string) ([]byte, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return hashedPassword, salt, nil
+
+	return hashedPassword, nil
 }

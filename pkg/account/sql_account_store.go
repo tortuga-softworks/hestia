@@ -21,10 +21,10 @@ func NewSqlAccountStore(db *sql.DB) (*SqlAccountStore, error) {
 }
 
 func (store *SqlAccountStore) FindByEmail(ctx context.Context, email string) (*Account, error) {
-	row := store.db.QueryRowContext(ctx, "SELECT user_id, email, password, salt, creation_date, update_date FROM account WHERE email = $1", email)
-
 	account := &Account{}
-	err := row.Scan(&account.UserID, &account.Email, &account.Password, &account.Salt, &account.CreationDate, &account.UpdateDate)
+
+	query := "SELECT user_id, email, password_hash, creation_date, update_date FROM account WHERE email = $1"
+	err := store.db.QueryRowContext(ctx, query, email).Scan(&account.UserID, &account.Email, &account.PasswordHash, &account.CreationDate, &account.UpdateDate)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -37,9 +37,9 @@ func (store *SqlAccountStore) FindByEmail(ctx context.Context, email string) (*A
 }
 
 func (store *SqlAccountStore) Create(ctx context.Context, account *Account) (*Account, error) {
-	query := "INSERT INTO account (email, password, salt) VALUES ($1, $2, $3) RETURNING user_id, creation_date, update_date"
+	query := "INSERT INTO account (email, password_hash) VALUES ($1, $2) RETURNING user_id, creation_date, update_date"
 
-	err := store.db.QueryRowContext(ctx, query, account.Email, account.Password, account.Salt).Scan(&account.UserID, &account.CreationDate, &account.UpdateDate)
+	err := store.db.QueryRowContext(ctx, query, account.Email, account.PasswordHash).Scan(&account.UserID, &account.CreationDate, &account.UpdateDate)
 
 	if err != nil {
 		return nil, &DatabaseError{err.Error()}

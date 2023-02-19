@@ -9,8 +9,8 @@ service Registration {
 }
 
 message SignUpRequest {
-    string email = 2;
-    string password = 3;
+    string email = 1;
+    string password = 2;
 }
 
 message SignUpResponse {

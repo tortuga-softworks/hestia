@@ -40,7 +40,7 @@ func (rs *RegistrationServer) SignUp(ctx context.Context, in *proto.SignUpReques
 		default:
 			return nil, status.Errorf(codes.Internal, "%v: %v", reflect.TypeOf(err), err)
 		}
-	} else {
-		return &proto.SignUpResponse{UserId: userID}, nil
 	}
+
+	return &proto.SignUpResponse{UserId: userID}, nil
 }

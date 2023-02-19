@@ -32,39 +32,33 @@ func (rs *RegistrationService) SignUp(ctx context.Context, email, password strin
 	}
 
 	_, err := rs.accountStore.FindByEmail(ctx, email)
-	if err != nil {
-		switch err.(type) {
-		case *account.AccountNotFoundError:
-			pwd, salt, err := hashPassword(password)
+	if err == nil {
+		return "", &EmailAlreadyExistsError{email}
+	}
 
-			if err != nil {
-				return "", errors.New("could not secure password")
-			}
+	switch err.(type) {
+	case *account.AccountNotFoundError:
+		pwd, salt, err := hashPassword(password)
 
-			account := account.Account{
-				Email:    email,
-				Password: pwd,
-				Salt:     salt,
-			}
+		if err != nil {
+			return "", errors.New("could not secure password")
+		}
 
-			err = rs.accountStore.Create(ctx, &account)
+		account := account.Account{
+			Email:    email,
+			Password: pwd,
+			Salt:     salt,
+		}
 
-			if err != nil {
-				return "", err
-			}
+		createdAccount, err := rs.accountStore.Create(ctx, &account)
 
-			createdAccount, err := rs.accountStore.FindByEmail(ctx, email)
-
-			if err != nil {
-				return "", err
-			}
-
-			return createdAccount.UserID, nil
-		default:
+		if err != nil {
 			return "", err
 		}
-	} else {
-		return "", &EmailAlreadyExistsError{email}
+
+		return createdAccount.UserID, nil
+	default:
+		return "", err
 	}
 }
 

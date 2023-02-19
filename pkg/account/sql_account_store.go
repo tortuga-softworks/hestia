@@ -36,12 +36,14 @@ func (store *SqlAccountStore) FindByEmail(ctx context.Context, email string) (*A
 	return account, nil
 }
 
-func (store *SqlAccountStore) Create(ctx context.Context, account *Account) error {
-	_, err := store.db.Exec(`INSERT INTO account (email, password, salt) VALUES ($1, $2, $3)`, account.Email, account.Password, account.Salt)
+func (store *SqlAccountStore) Create(ctx context.Context, account *Account) (*Account, error) {
+	query := "INSERT INTO account (email, password, salt) VALUES ($1, $2, $3) RETURNING user_id, creation_date, update_date"
+
+	err := store.db.QueryRowContext(ctx, query, account.Email, account.Password, account.Salt).Scan(&account.UserID, &account.CreationDate, &account.UpdateDate)
 
 	if err != nil {
-		return &DatabaseError{err.Error()}
+		return nil, &DatabaseError{err.Error()}
 	}
 
-	return nil
+	return account, nil
 }
